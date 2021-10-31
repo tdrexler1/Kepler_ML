@@ -63,7 +63,7 @@ koi_df <-
 
 ```{r fig.width=10, fig.height=10}
 # boxplots of overall distributions
-melt(koi_df) %>%
+melt(as.data.table(koi_df), id.vars= "koi_pdisposition") %>%
   select(variable, value) %>% 
   ggplot( aes(y=value, x=variable, fill=variable ) ) +
   geom_boxplot() +
@@ -72,7 +72,7 @@ melt(koi_df) %>%
   facet_wrap(~variable, ncol=3, scales="free")
 
 # boxplots of distributions within each response category
-melt(koi_df) %>% 
+melt(as.data.table(koi_df), id.vars= "koi_pdisposition") %>% 
   select(koi_pdisposition, variable, value) %>% 
   ggplot( aes(y=value, x=koi_pdisposition, fill=koi_pdisposition ) ) +
   geom_boxplot() +
@@ -86,7 +86,7 @@ melt(koi_df) %>%
 
 ```{r fig.width=10, fig.height=10}
 # histograms
-melt(koi_df) %>% 
+melt(as.data.table(koi_df), id.vars= "koi_pdisposition") %>%
   select(koi_pdisposition, variable, value) %>% 
   ggplot( aes(x=value, fill=variable) ) +
   geom_histogram(bins=15, color="black") +
@@ -99,7 +99,7 @@ melt(koi_df) %>%
 
 ```{r fig.width=10, fig.height=10}
 # normal probability plots
-melt(koi_df) %>% 
+melt(as.data.table(koi_df), id.vars= "koi_pdisposition") %>%
   select(koi_pdisposition, variable, value) %>% 
   ggplot( aes(sample=value, color=variable ) ) +
   stat_qq( size = 2, shape = 1 ) +
@@ -113,7 +113,7 @@ melt(koi_df) %>%
 
 ```{r fig.width=10, fig.height=10}
 # overlapping density plots
-melt(koi_df) %>% 
+melt(as.data.table(koi_df), id.vars= "koi_pdisposition") %>%
   select(koi_pdisposition, variable, value) %>% 
   ggplot( aes(x=value, color=koi_pdisposition  ) ) +
   geom_density(lwd=1) +
@@ -161,7 +161,7 @@ koi_transform <-
 
 ```{r fig.width=10, fig.height=10}
 # boxplots of overall distributions
-melt(koi_transform) %>% 
+melt(as.data.table(koi_transform), id.vars= "koi_pdisposition") %>% 
   select(variable, value) %>% 
   ggplot( aes(y=value, x=variable, fill=variable ) ) +
   geom_boxplot() +
@@ -170,7 +170,7 @@ melt(koi_transform) %>%
   facet_wrap(~variable, ncol=3, scales="free")
 
 # boxplots of distributions within each response category
-melt(koi_transform) %>% 
+melt(as.data.table(koi_transform), id.vars= "koi_pdisposition") %>%
   select(koi_pdisposition, variable, value) %>% 
   ggplot( aes(y=value, x=koi_pdisposition, fill=koi_pdisposition ) ) +
   geom_boxplot() +
@@ -185,7 +185,7 @@ melt(koi_transform) %>%
 
 ```{r fig.width=10, fig.height=10}
 # histograms
-melt(koi_transform) %>% 
+melt(as.data.table(koi_transform), id.vars= "koi_pdisposition") %>%
   select(koi_pdisposition, variable, value) %>% 
   ggplot( aes(x=value, fill=variable) ) +
   geom_histogram(bins=15, color="black") +
@@ -199,7 +199,7 @@ melt(koi_transform) %>%
 
 ```{r fig.width=10, fig.height=10}
 # normal probability plots
-melt(koi_transform) %>% 
+melt(as.data.table(koi_transform), id.vars= "koi_pdisposition") %>%
   select(koi_pdisposition, variable, value) %>% 
   ggplot( aes(sample=value, color=variable ) ) +
   stat_qq( size = 2, shape = 1 ) +
@@ -214,7 +214,7 @@ melt(koi_transform) %>%
 
 ```{r fig.width=10, fig.height=10}
 # overlapping density plots
-melt(koi_transform) %>% 
+melt(as.data.table(koi_transform), id.vars= "koi_pdisposition") %>% 
   select(koi_pdisposition, variable, value) %>% 
   ggplot( aes(x=value, color=koi_pdisposition  ) ) +
   geom_density(lwd=1) +
@@ -253,8 +253,8 @@ corrplot(
 # test for multivariate normality of predictors within each response category - transformed & untransformed values
 x_cd_transform = koi_transform[koi_transform$koi_pdisposition == "CANDIDATE", -1]
 x_fp_transform = koi_transform[koi_transform$koi_pdisposition == "FALSE POSITIVE", -1]
-x_cd_notransform = koi_df_factor[koi_df_factor$koi_pdisposition == "CANDIDATE", -1]
-x_fp_notransform = koi_df_factor[koi_df_factor$koi_pdisposition == "FALSE POSITIVE", -1]
+x_cd_notransform = koi_df[koi_df$koi_pdisposition == "CANDIDATE", -1]
+x_fp_notransform = koi_df[koi_df$koi_pdisposition == "FALSE POSITIVE", -1]
 
 mvn(x_cd_transform, mvnTest = "hz")$multivariateNormality
 mvn(x_fp_transform, mvnTest = "hz")$multivariateNormality
@@ -264,9 +264,9 @@ mvn(x_fp_notransform, mvnTest = "hz")$multivariateNormality
 # results show predictor variables are not multivariate normal; linear discriminant analysis and quadratic discriminate analysis would not be appropriate for model selection
 ```
 
-```{r fig.width=6.5, fig.height=3}
+```{r fig.width=6.5, fig.height=5}
 ### PLOTS FOR EXECUTIVE SUMMARY
-# Demonstrating effects of variable transfomration
+# Demonstrating effects of variable transformation
 
 # plot used to extract legend for side-by-side plots
 legend_plot <- 
