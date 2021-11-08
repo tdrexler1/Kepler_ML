@@ -263,7 +263,7 @@ mvn(x_fp_notransform, mvnTest = "hz")$multivariateNormality
 # results show predictor variables are not multivariate normal; linear discriminant analysis and quadratic discriminate analysis would not be appropriate for model selection
 ```
 
-```{r fig.width=6.5, fig.height=5}
+```{r fig.width=6.5, fig.height=4}
 ### PLOTS FOR EXECUTIVE SUMMARY
 # Demonstrating effects of variable transformation
 
@@ -286,10 +286,6 @@ legend <- g_legend(legend_plot)
 # boxplots of 'koi_depth' variable
 grid.arrange(
   arrangeGrob(
-    textGrob("Distribution of 'koi_depth' Variable", gp=gpar(fontsize=16) ),
-    textGrob("Kepler Objects of Interest Data Set", gp=gpar(fontsize=12) ),
-    nrow = 2, ncol = 1, heights = c(0.4, 0.4) ) ,
-  arrangeGrob(
     ggplot(data = koi_df, aes(y=koi_depth) ) +
       geom_boxplot(fill = "gold") +
       labs(subtitle="no transformation", y="Transit Depth (parts per million)", x="") +
@@ -299,14 +295,10 @@ grid.arrange(
       labs(subtitle="ln(x+1) transformation", y="Transit Depth (parts per million)", x="") +
       theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust=0.5), legend.position = "none", axis.text.x = element_blank()) ,
     nrow = 1) ,
-  ncol = 1, nrow = 2, heights = c(1,8) )
+  ncol = 1, nrow = 1 )
 
 # overlapping probability density plots of 'koi_depth' variable by response category
 grid.arrange(
-  arrangeGrob(
-    textGrob("Distribution of 'koi_depth' Variable by Classification Category", gp=gpar(fontsize=16) ),
-    textGrob("Kepler Objects of Interest Data Set", gp=gpar(fontsize=12) ),
-    nrow = 2, ncol = 1, heights = c(0.4, 0.4) ),
   arrangeGrob(
     ggplot(data = koi_df, aes(x=koi_depth, color=koi_pdisposition  ) ) +
       geom_density(lwd=1) +
@@ -320,7 +312,7 @@ grid.arrange(
       theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust=0.5), legend.position = "none" ), 
     nrow = 1),
   legend,
-  ncol=1, nrow=3, heights = c(1,8,0.5) )
+  ncol=1, nrow=2, heights = c(8,1) )
 ```
 
 ## MODEL SELECTION & SELECTION PROCESS ASSESSMENT
