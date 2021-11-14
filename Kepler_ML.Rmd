@@ -43,7 +43,7 @@ select <- dplyr::select
 # import data data set
 koi_df <- 
   # load data set
-  data.frame(read_csv("cumulative.csv", n_max = 9564) ) %>% 
+  data.frame(read_csv("KOI_data.csv", n_max = 9564) ) %>% 
   # select response + useful predictors (exclude error columns, flags, ids, etc.)
   select(koi_pdisposition, koi_period, koi_impact, koi_duration, koi_depth, koi_prad, koi_teq, koi_insol, koi_model_snr, koi_steff, koi_slogg, koi_srad, koi_kepmag ) %>% 
   # code response as factor
