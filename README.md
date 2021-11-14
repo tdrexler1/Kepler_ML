@@ -12,6 +12,17 @@ I outline the project steps briefly below, and I've added a [project summary rep
 
 # Data Source & Preliminary Analysis
 
-The dataset I used was posted by [NASA on Kaggle.com](https://www.kaggle.com/nasa/kepler-exoplanet-search-results) and contained data on nearly 10,000 "Kepler Objects of Interest" across 50 data dimensions (I've [included a copy](KOI_data.csv) in the repository). I chose "koi_pdisposition" as the response variable for classification and selected 12 variables as predictors. The dataset required only minimal cleaning to filter out incomplete records.
+The data set I used was posted by [NASA on Kaggle.com](https://www.kaggle.com/nasa/kepler-exoplanet-search-results) and contained data on nearly 10,000 "Kepler Objects of Interest" across 50 data dimensions (I've [included a copy](KOI_data.csv) in the repository). I chose "koi_pdisposition" as the response variable for classification and selected 12 variables as predictor, all with continuous, numeric values. The only significant data cleaning operation necessary was to filter out incomplete records.
 
-I explored the data set characteristics using the `dplyr` and `ggplot2` packages in R to create boxplots, histograms, normal probability plots, and overlapping density plots for each predictor variable.
+I explored the data set characteristics using the `dplyr` and `ggplot2` packages in R to shape and plot the data. I created boxplots, histograms, normal probability plots, and overlapping density plots for each predictor variable. The plots showed that the distribution of observation measurements was heavily right-skewed for 10 of the variables. To reduce the variance of the data and render the distributions closer to normal, I applied a *ln(x+1)* transformation to these variable values.
+
+Before starting the model selection process, I first narrowed down the number of modeling methods I wanted to evaluate. For example, a test of multivariate normality indicated that the predictor variables were not multivariate normal, so linear discriminate analysis models and quadratic discriminate analysis models would likely perform poorly when tested on the KOI data set. Likewise, a test of linear correlation showed no strong linear relationship between the koi_pdisposition response variable and any predictor. In addition, several pairs of predictor variables showed significant linear correlations after transformation, suggesting variance inflation could decrease the accuracy of linear models. As a result, I chose to exclude logistic regression models and penalized logistic regression models from the selection process.  
+
+# Classification Model Selection
+
+The modeling techniques I selected included support vector machines (SVMs) with a radial kernal, k-nearest neighbors, decision trees, boosted decision trees, random forests/bagging, and artificial neural nets. For each approach, I trained multiple models using 10-fold cross-validation and a range of values for 1-3 tunable modeling parameters. This process took considerable time to complete, so I decided to reduce the number of modeling methods further by measuring the performance of the optimally-tuned model for each method. On this basis, I eliminated decision trees and boosted decision trees, both of which had classification error rates more than one standard deviation greater than the overall minimum error rate produced by an SVM model.
+
+After this initial selection process, I "reset" my code to select only from among SVM, k-nearest neighbors, random forests/bagging, and artificial neural net modeling methods. Again using 10-fold cross-validation with the full KOI data set, an SVM with a radial kernal had the lowest classification error rate of 15.68%, obtained by using a cost penalty value of 1 and a radial kernal constant of 0.5. 
+
+# Selection Process Assessment
+
