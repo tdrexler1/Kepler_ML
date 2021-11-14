@@ -553,14 +553,14 @@ model_select <- function(select_df, modeling_formula){
 
 ```{r}
 ### MODEL SELECTION
-## NOTE: the function call in this chunk can take 2+ hours to run; the pre-processed result is included in the commented line (572) below the call
+## NOTE: the function call in this chunk can take 2+ hours to run; the pre-processed result is included in the commented line below the call
 
 # modeling formula including all available predictors
 fullfit_formula <- koi_pdisposition ~ .
 
 # call function to select model best fit for full data set
-#fullfit_selection_results <- model_select(koi_transform, fullfit_formula)
-fullfit_selection_results <- list(model_name = "SVM", model_er = 0.157, cost_param = 1, gamma_param = 0.5)
+fullfit_selection_results <- model_select(koi_transform, fullfit_formula)
+#fullfit_selection_results <- list(model_name = "SVM", model_er = 0.157, cost_param = 1, gamma_param = 0.5)
 
 # data frames with binary and factor response for use by modeling functions below
 fullfit_factor <- koi_transform %>% mutate( koi_pdisposition = as.factor(koi_pdisposition) )
