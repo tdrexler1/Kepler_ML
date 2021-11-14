@@ -3,6 +3,5 @@
 .RData
 .Ruserdata
 Kepler_ML.Rproj
-.docx
-markdown_summary_doc
-summary_figure*
+*.docx
+ignore_dir/
