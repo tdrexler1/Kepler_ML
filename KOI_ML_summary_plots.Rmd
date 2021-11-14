@@ -1,0 +1,105 @@
+---
+title: "Kepler Space Telescope Exoplanet Search Data Machine Learning Classification Project"
+subtitle: "Data Set Exploration and Preliminary Analysis"
+author: "Timothy Drexler"
+date: "August 2019"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# used to load large csv file
+require(readr)
+# used to manipulate data frame
+require(dplyr)
+# used for plots
+require(ggplot2)
+# used for plot colors
+require(RColorBrewer)
+# used to arrange plots
+require(grid); require(gridExtra)
+# used to melt data for plotting
+require(data.table)
+
+# prevent masking of 'dplyr' select by other packages
+select <- dplyr::select
+```
+
+## DATA SET EXPLORATION
+
+```{r message=FALSE}
+# import data data set
+koi_df <- 
+  # load data set
+  data.frame(read_csv("KOI_data.csv", n_max = 9564) ) %>% 
+  # select response + useful predictors (exclude error columns, flags, ids, etc.)
+  select(koi_pdisposition, koi_period, koi_impact, koi_duration, koi_depth, koi_prad, koi_teq, koi_insol, koi_model_snr, koi_steff, koi_slogg, koi_srad, koi_kepmag ) %>% 
+  # code response as factor
+  mutate( koi_pdisposition = as.factor(koi_pdisposition) )
+
+# examine observations with missing values
+koi_df_missing <- 
+  koi_df %>% 
+  filter(!complete.cases(.)) 
+
+# filter data set to include only complete cases
+koi_df <- 
+  koi_df %>% 
+  filter(complete.cases(.)) 
+
+# no variables have negative values, but there are some zeroes, so use ln(x+1) transformation on all variables other than 'koi_kepmag' (already approximately-normal), 'koi_slogg' (left-skewed), and 'koi_pdisposition' (binary response) 
+koi_transform <- 
+  koi_df %>% mutate_at(vars(-c(koi_pdisposition, koi_slogg, koi_kepmag) ), list(~log1p(.) ) )
+```
+
+```{r fig.width=6.5, fig.height=4}
+### PLOTS FOR SUMMARY DOCUMENT
+# Demonstrating effects of variable transformation
+
+# plot used to extract legend for side-by-side plots
+legend_plot <- 
+    ggplot(data = koi_df, aes(x=koi_depth, color=koi_pdisposition  ) ) +
+      geom_density(lwd=1) +
+      scale_color_brewer(palette = "Dark2") +
+      theme(legend.position = "bottom" )
+    
+# extract plot legend - https://stackoverflow.com/q/13649473
+g_legend<-function(a.gplot){
+  tmp <- ggplot_gtable(ggplot_build(a.gplot))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)}
+
+legend <- g_legend(legend_plot)
+
+# boxplots of 'koi_depth' variable
+grid.arrange(
+  arrangeGrob(
+    ggplot(data = koi_df, aes(y=koi_depth) ) +
+      geom_boxplot(fill = "gold") +
+      labs(subtitle="no transformation", y="Transit Depth (parts per million)", x="") +
+      theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust=0.5), legend.position = "none", axis.text.x = element_blank()) ,
+    ggplot(data = koi_transform, aes(y=koi_depth) ) +
+      geom_boxplot(fill = "gold") +
+      labs(subtitle="ln(x+1) transformation", y="Transit Depth (parts per million)", x="") +
+      theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust=0.5), legend.position = "none", axis.text.x = element_blank()) ,
+    nrow = 1) ,
+  ncol = 1, nrow = 1 )
+
+# overlapping probability density plots of 'koi_depth' variable by response category
+grid.arrange(
+  arrangeGrob(
+    ggplot(data = koi_df, aes(x=koi_depth, color=koi_pdisposition  ) ) +
+      geom_density(lwd=1) +
+      labs(subtitle="no transformation", y="Density", x="Transit Depth (parts per million)") +
+      scale_color_brewer(palette = "Dark2") +
+      theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust=0.5), legend.position = "none" ) ,
+    ggplot(data = koi_transform, aes(x=koi_depth, color=koi_pdisposition  ) ) +
+      geom_density(lwd=1) +
+      labs(subtitle="ln(x+1) transformation", y="Density", x="Transit Depth (parts per million)") +
+      scale_color_brewer(palette = "Dark2") +
+      theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust=0.5), legend.position = "none" ), 
+    nrow = 1),
+  legend,
+  ncol=1, nrow=2, heights = c(8,1) )
+```
