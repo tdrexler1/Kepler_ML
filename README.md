@@ -1,2 +1,5 @@
-# Kepler_ML
-Using machine learning techniques to develop a classification model from Kepler Space Telescope exoplanet search data
+# Finding Exoplanets with Machine Learning
+
+Developing Classification Models for Kepler Mission Data
+
+
