@@ -5,3 +5,5 @@
 Kepler_ML.Rproj
 *.docx
 ignore_dir/
+KOI_ML_full.Rmd
+KOI_ML_summary_plots.Rmd
