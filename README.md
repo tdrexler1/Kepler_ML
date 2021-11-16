@@ -4,7 +4,7 @@ Developing Classification Models for Kepler Mission Data
 
 # Overview
 
-In this project, I explored various machine learning techniques used to create and tune predictive classifier models. The primary project goal was to find a model that could accurately predict whether a star was likely to have planets based on properties of the stellar system measured by the Kepler Space Telescope. In addition to the model tuning and selection process, I applied "double" cross-validation to assess the potential accuracy of any model created using the procedure I developed.
+In this project, I explored various machine learning techniques used to create and tune predictive classifier models. The primary project goal was to find a model that could accurately predict whether a star was likely to have planets based on properties of the stellar system measured by the Kepler Space Telescope. In addition to the model tuning and selection process, I applied double cross-validation to assess the potential accuracy of any model created using the procedure I developed.
 
 I've included the project code in two RMarkdown files. [KOI_ML_explore.Rmd](KOI_ML_explore.Rmd) contains the code for my initial data set exploration and analysis, including plots of variable distributions for transformed and untransformed variables. [KOI_ML_model.Rmd](KOI_ML_model.Rmd) is the script I used for model training, parameter tuning, model selection, and selection process assessment.
 
@@ -26,3 +26,4 @@ After this preliminary selection process, I reconfigured my code to evaluate onl
 
 # Selection Process Assessment
 
+To assess the model selection process, I used the nested cross-validation technique. In this procedure, the data set is randomly split into k folds: one fold is held out as test data, while the data in the other folds is passed to the model selection process. In this case, the model selection process also uses k-fold cross-validation, creating an inner loop nested in the outer loop of fold splitting. The goal is to reduce the bias 
