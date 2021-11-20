@@ -32,7 +32,7 @@ select <- dplyr::select
 ## DATA SET EXPLORATION
 
 ```{r message=FALSE}
-# import data data set
+# import data set
 koi_df <- 
   # load data set
   data.frame(read_csv("KOI_data.csv", n_max = 9564) ) %>% 

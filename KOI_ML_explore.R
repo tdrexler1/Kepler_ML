@@ -4,8 +4,9 @@
 #' author: "Timothy Drexler"
 #' date: "August 2019"
 #' ---
-#' 
-## ----setup, include=FALSE---------------------------------------------------------------------------------------------------------------------
+
+
+## ---- Setup ------------------------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE)
 
 # used to load large csv file
@@ -28,11 +29,10 @@ require(MVN)
 # prevent masking of 'dplyr' select by other packages
 select <- dplyr::select
 
-#' 
-#' ## DATA SET EXPLORATION
-#' 
-## ----message=FALSE----------------------------------------------------------------------------------------------------------------------------
-# import data data set
+
+## ---- Data Import ------------------------------------------------------------
+
+# import data set
 koi_df <- 
   # load data set
   data.frame(read_csv("KOI_data.csv", n_max = 9564) ) %>% 
@@ -51,9 +51,12 @@ koi_df <-
   koi_df %>% 
   filter(complete.cases(.)) 
 
-#' 
-## ----fig.width=10, fig.height=10--------------------------------------------------------------------------------------------------------------
-# boxplots of overall distributions
+
+## ---- Data Set Exploration ---------------------------------------------------
+
+## boxplots --------------------------------------------------------------------
+
+# overall distributions
 melt(as.data.table(koi_df), id.vars= "koi_pdisposition") %>%
   select(variable, value) %>% 
   ggplot( aes(y=value, x=variable, fill=variable ) ) +
@@ -62,7 +65,7 @@ melt(as.data.table(koi_df), id.vars= "koi_pdisposition") %>%
   theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust=0.5), legend.position = "none", axis.text.x = element_blank()) +
   facet_wrap(~variable, ncol=3, scales="free")
 
-# boxplots of distributions within each response category
+# distributions within each response category
 melt(as.data.table(koi_df), id.vars= "koi_pdisposition") %>% 
   select(koi_pdisposition, variable, value) %>% 
   ggplot( aes(y=value, x=koi_pdisposition, fill=koi_pdisposition ) ) +
@@ -74,9 +77,9 @@ melt(as.data.table(koi_df), id.vars= "koi_pdisposition") %>%
 
 # most variables very right-skewed, except 'koi_slogg' (left-skewed) and 'koi_kepmag' (~normal, logarithmic scale)
 
-#' 
-## ----fig.width=10, fig.height=10--------------------------------------------------------------------------------------------------------------
-# histograms
+
+## histograms ------------------------------------------------------------------
+
 melt(as.data.table(koi_df), id.vars= "koi_pdisposition") %>%
   select(koi_pdisposition, variable, value) %>% 
   ggplot( aes(x=value, fill=variable) ) +
@@ -87,9 +90,9 @@ melt(as.data.table(koi_df), id.vars= "koi_pdisposition") %>%
 
 # most variables very right-skewed, except 'koi_slogg' (left-skewed) and 'koi_kepmag' (~normal, logarithmic scale)
 
-#' 
-## ----fig.width=10, fig.height=10--------------------------------------------------------------------------------------------------------------
-# normal probability plots
+
+## normal probability plots ----------------------------------------------------
+
 melt(as.data.table(koi_df), id.vars= "koi_pdisposition") %>%
   select(koi_pdisposition, variable, value) %>% 
   ggplot( aes(sample=value, color=variable ) ) +
@@ -101,9 +104,9 @@ melt(as.data.table(koi_df), id.vars= "koi_pdisposition") %>%
 
 # most variables very right-skewed, except 'koi_slogg' (left-skewed) and 'koi_kepmag' (~normal, logarithmic scale)
 
-#' 
-## ----fig.width=10, fig.height=10--------------------------------------------------------------------------------------------------------------
-# overlapping density plots
+
+## overlapping density plots ---------------------------------------------------
+
 melt(as.data.table(koi_df), id.vars= "koi_pdisposition") %>%
   select(koi_pdisposition, variable, value) %>% 
   ggplot( aes(x=value, color=koi_pdisposition  ) ) +
@@ -114,9 +117,9 @@ melt(as.data.table(koi_df), id.vars= "koi_pdisposition") %>%
 
 # 'koi_slogg', 'koi_steff', & 'koi_kepmag' appear to have ~equal variances between categories; 'koi_teq' appears to have unequal variances between categories; difficult to tell for other variables 
 
-#' 
-## ----fig.width=10, fig.height=10--------------------------------------------------------------------------------------------------------------
-# linear correlations between response and predictor variables
+
+## linear correlations between response and predictor variables ----------------
+
 pairs(koi_df[c(1,2:5)], main="Scatterplot Matrices - Quantitative Variables (Kepler data set)")
 pairs(koi_df[c(1,6:9)], main="Scatterplot Matrices - Quantitative Variables (Kepler data set)") # 'koi_teq' and 'koi_insol' are correlated, but correlation is not linear
 pairs(koi_df[c(1,10:13)], main="Scatterplot Matrices - Quantitative Variables (Kepler data set)") # 'koi_srad' correlated with 'koi_slogg', but correlation is not linear
@@ -138,10 +141,9 @@ corrplot(
 
 # some linear correlations ('koi_slogg' & 'koi_srad', 'koi_prad' & 'koi_impact'), but all correlation coefficient magnitudes < 0.7, so won't eliminate any predictors
 
-#' 
-#' ## QUANTITATIVE PREDICTOR VARIABLE TRANSFORMATION
-#' 
-## ---------------------------------------------------------------------------------------------------------------------------------------------
+
+## ---- Variable Transformation ------------------------------------------------
+
 # strong right-skew of most predictor variables suggests transformation may be appropriate
 summary(koi_df)
 
@@ -149,9 +151,10 @@ summary(koi_df)
 koi_transform <- 
   koi_df %>% mutate_at(vars(-c(koi_pdisposition, koi_slogg, koi_kepmag) ), list(~log1p(.) ) )
 
-#' 
-## ----fig.width=10, fig.height=10--------------------------------------------------------------------------------------------------------------
-# boxplots of overall distributions
+
+## transformed variable boxplots -----------------------------------------------
+
+# overall distributions
 melt(as.data.table(koi_transform), id.vars= "koi_pdisposition") %>% 
   select(variable, value) %>% 
   ggplot( aes(y=value, x=variable, fill=variable ) ) +
@@ -160,7 +163,7 @@ melt(as.data.table(koi_transform), id.vars= "koi_pdisposition") %>%
   theme(plot.title = element_text(hjust = 0.5), plot.subtitle = element_text(hjust=0.5), legend.position = "none", axis.text.x = element_blank()) +
   facet_wrap(~variable, ncol=3, scales="free")
 
-# boxplots of distributions within each response category
+# distributions within each response category
 melt(as.data.table(koi_transform), id.vars= "koi_pdisposition") %>%
   select(koi_pdisposition, variable, value) %>% 
   ggplot( aes(y=value, x=koi_pdisposition, fill=koi_pdisposition ) ) +
@@ -173,9 +176,9 @@ melt(as.data.table(koi_transform), id.vars= "koi_pdisposition") %>%
 # log(x+1) transformation produces more-symmetrical distributions to some degree for all variables
 # no obvious differences in distribution by response category for any variable  
 
-#' 
-## ----fig.width=10, fig.height=10--------------------------------------------------------------------------------------------------------------
-# histograms
+
+## transformed variable histograms ---------------------------------------------
+
 melt(as.data.table(koi_transform), id.vars= "koi_pdisposition") %>%
   select(koi_pdisposition, variable, value) %>% 
   ggplot( aes(x=value, fill=variable) ) +
@@ -187,9 +190,9 @@ melt(as.data.table(koi_transform), id.vars= "koi_pdisposition") %>%
 # log(x+1) transformation produces more-symmetrical distributions to some degree for all variables
 # some variables still very right skewed ('koi_impact', 'koi_prad', 'koi_srad')
 
-#' 
-## ----fig.width=10, fig.height=10--------------------------------------------------------------------------------------------------------------
-# normal probability plots
+
+## transformed variable normal probability plots -------------------------------
+
 melt(as.data.table(koi_transform), id.vars= "koi_pdisposition") %>%
   select(koi_pdisposition, variable, value) %>% 
   ggplot( aes(sample=value, color=variable ) ) +
@@ -202,9 +205,9 @@ melt(as.data.table(koi_transform), id.vars= "koi_pdisposition") %>%
 # log(x+1) transformation produces more-symmetrical distributions to some degree for all variables
 # some variables still very right skewed ('koi_impact', 'koi_prad', 'koi_srad')
 
-#' 
-## ----fig.width=10, fig.height=10--------------------------------------------------------------------------------------------------------------
-# overlapping density plots
+
+## transformed variable overlapping density plots ------------------------------
+
 melt(as.data.table(koi_transform), id.vars= "koi_pdisposition") %>% 
   select(koi_pdisposition, variable, value) %>% 
   ggplot( aes(x=value, color=koi_pdisposition  ) ) +
@@ -215,16 +218,16 @@ melt(as.data.table(koi_transform), id.vars= "koi_pdisposition") %>%
 
 # after transformation, can now observe unequal distributions by response category for some variables ('koi_period', 'koi_depth', 'koi_insol', etc.); distinct classes may help with model predictions
 
-#' 
-## ----fig.width=10, fig.height=10--------------------------------------------------------------------------------------------------------------
-# linear correlations between response and transformed predictor variables
+
+## linear correlations between response and transformed predictor variables ----
+
 pairs(koi_transform[c(1,2:5)], main="Scatterplot Matrices - Quantitative Variables (Kepler data set)")
 pairs(koi_transform[c(1,6:9)], main="Scatterplot Matrices - Quantitative Variables (Kepler data set)") # transformed 'koi_teq' and 'koi_insol' linearly correlated
 pairs(koi_transform[c(1,10:13)], main="Scatterplot Matrices - Quantitative Variables (Kepler data set)") # transformed 'koi_srad' and 'koi_slogg' linearly correlated
 
 cor(koi_transform %>% mutate( koi_pdisposition = ifelse(koi_pdisposition=="CANDIDATE", 1, 0) ))[,1] # no strong linear correlation between response and any predictors
 
-# correlations between predictor variables
+# correlations between transformed predictor variables
 corrplot(
   cor( koi_transform[ , -1]),
   method="color", # squares instead of circles
@@ -239,9 +242,8 @@ corrplot(
 
 # transformed predictor variables have much higher linear correlations, both positive and negative; variance inflation could be an issue for linear models
 
-#' 
-## ---------------------------------------------------------------------------------------------------------------------------------------------
-# test for multivariate normality of predictors within each response category - transformed & untransformed values
+
+## test for multivariate normality of predictors within each response category ----
 x_cd_transform = koi_transform[koi_transform$koi_pdisposition == "CANDIDATE", -1]
 x_fp_transform = koi_transform[koi_transform$koi_pdisposition == "FALSE POSITIVE", -1]
 x_cd_notransform = koi_df[koi_df$koi_pdisposition == "CANDIDATE", -1]
@@ -253,4 +255,3 @@ mvn(x_cd_notransform, mvnTest = "hz")$multivariateNormality
 mvn(x_fp_notransform, mvnTest = "hz")$multivariateNormality
 
 # results show predictor variables are not multivariate normal; linear discriminant analysis and quadratic discriminate analysis would not be appropriate for model selection
-

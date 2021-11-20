@@ -4,8 +4,9 @@
 #' author: "Timothy Drexler"
 #' date: "August 2019"
 #' ---
-#' 
-## ----setup, include=FALSE---------------------------------------------------------------------------------------------------------------------
+
+
+## ---- Setup ------------------------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE)
 
 # used to load large csv file
@@ -25,10 +26,10 @@ require(class)
 # prevent masking of 'dplyr' select by other packages
 select <- dplyr::select
 
-#' 
-#' 
-## ----prep_data, message=FALSE-----------------------------------------------------------------------------------------------------------------
-# import data data set
+
+## ---- Data Import ------------------------------------------------------------
+
+# import data set
 koi_df <- 
   # load data set
   data.frame(read_csv("KOI_data.csv", n_max = 9564) ) %>% 
@@ -51,10 +52,10 @@ koi_df <-
 koi_transform <- 
   koi_df %>% mutate_at(vars(-c(koi_pdisposition, koi_slogg, koi_kepmag) ), list(~log1p(.) ) )
 
-#' 
-#' 
-#' ## MODEL SELECTION & SELECTION PROCESS ASSESSMENT
-## ---------------------------------------------------------------------------------------------------------------------------------------------
+
+## ----Model Selection & Selection Process Assessment --------------------------
+
+## Cross-validation group selection --------------------------------------------
 cv_group_select <- function(n, m=10, seed=NULL){
   # Creates randomly-sampled groups for cross-validation folds.
   # Args: n : # of observations in data frame, m : # of CV folds, seed : initialization value for random-number generator
@@ -71,10 +72,8 @@ cv_group_select <- function(n, m=10, seed=NULL){
   return( sample( groups_select, size = n ) )
 }
 
-#' 
-#' ## MODEL SELECTION
-## ----model selection function-----------------------------------------------------------------------------------------------------------------
-### MODEL SELECTION FUNCTION
+
+## Model selection function ----------------------------------------------------
 
 model_select <- function(select_df, modeling_formula){
   # Uses 10-fold cross-validation and ranges of model tuning parameters to select classification model with lowest error rate on input data set
@@ -288,9 +287,9 @@ model_select <- function(select_df, modeling_formula){
   
 }
 
-#' 
-## ----model selection--------------------------------------------------------------------------------------------------------------------------
-### MODEL SELECTION
+
+## Model selection using full data set -----------------------------------------
+
 ## NOTE: the function call in this chunk can take 2+ hours to run; the pre-processed result is included in the commented line below the call
 
 # modeling formula including all available predictors
@@ -352,10 +351,9 @@ cat("Best model type: ", fullfit_selection_results$model_name, "\nClassification
 
 selected_fit
 
-#' 
-#' ## SELECTION PROCESS ASSESSMENT
-## ----selection process assessment-------------------------------------------------------------------------------------------------------------
-### SELECTION PROCESS ASSESSMENT
+
+## Selection process assessment ------------------------------------------------
+
 ## NOTE: this chunk takes > 12 hours to run; pre-processed assessment results are included in the chunk below
 
 # start timer
@@ -397,12 +395,12 @@ for(j in 1:CVFOLDS_ASSESS){ # iterate over all assessment CV folds
   
   cat("Working on fold ", j, "...\n", sep = "") # progress message
   
-##### MODEL SELECTION #####
+#####  MODEL SELECTION 
 
   # call function to select best-fit model
   jfold_selection_results <- model_select(select_df, full_formula)
   
-##### END MODEL SELECTION #####
+##### END MODEL SELECTION 
 
   # object to store predictions on assessment process test data
   selected_predictions <- rep(NA, dim(assess_test_factor)[1])
@@ -487,9 +485,8 @@ end_time <- Sys.time()
 assessment_process_time <- end_time - start_time
 cat("\n\nTime to run assessment process: ", assessment_process_time, "\n", sep = "")
 
-#' 
-## ----pre-processed assessment results---------------------------------------------------------------------------------------------------------
-### PRE-PROCESSED ASSESSMENT RESULTS
+
+## Pre-processed assessment results --------------------------------------------
 
 # error rate vectors for individual modeling methods across assessment folds
 jfold_model_er_knn <- c(0.1652174, 0.1793478, 0.1836957, 0.1706522, 0.1532609, 0.1750000, 0.1706522, 0.1543478, 0.1608696, 0.1706522)
@@ -515,4 +512,3 @@ p_cv <- 1 - cv_10
 
 # report selection process assessment results
 cat("Cross-validated Measures for Assessment\n\nProportion of responses incorrectly classified: ", cv_10, "\nProportion of responses able to be (honestly) correctly classified by selected model: ", p_cv, "\n\n", sep = "")
-

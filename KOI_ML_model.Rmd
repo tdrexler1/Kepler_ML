@@ -397,12 +397,12 @@ for(j in 1:CVFOLDS_ASSESS){ # iterate over all assessment CV folds
   
   cat("Working on fold ", j, "...\n", sep = "") # progress message
   
-##### MODEL SELECTION #####
+  ##### MODEL SELECTION #####
 
   # call function to select best-fit model
   jfold_selection_results <- model_select(select_df, full_formula)
   
-##### END MODEL SELECTION #####
+  ##### END MODEL SELECTION #####
 
   # object to store predictions on assessment process test data
   selected_predictions <- rep(NA, dim(assess_test_factor)[1])
